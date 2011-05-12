@@ -1,0 +1,11 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=Bugzilla client
+GenericName=Bugzilla client
+GenericName[pt_BR]=Bugzilla client
+Comment=Bugzilla client with inteligent bug search
+Icon=/usr/share/icons/zilla.png
+Exec=/usr/bin/zilla
+Type=Application
+Terminal=false
+Categories=Qt;KDE;Education;X-KDE-Edu-Teaching;

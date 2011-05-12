@@ -1,0 +1,65 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR ORGANIZATION
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2011-05-11 22:32+BRT\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: ENCODING\n"
+"Generated-By: pygettext.py 1.5\n"
+
+
+#: ../zilla.py:93
+msgid "Support client"
+msgstr ""
+
+#: ../zilla.py:117
+msgid "Report a problem"
+msgstr ""
+
+#: ../zilla.py:122
+msgid "Ready for search"
+msgstr ""
+
+#: ../zilla.py:130
+msgid "Search finished, %d bugs found"
+msgstr ""
+
+#: ../zilla.py:154
+msgid "Please describe your problem"
+msgstr ""
+
+#: ../zilla.py:166
+msgid "Please describe your problem in details"
+msgstr ""
+
+#: ../zilla.py:180
+msgid "Report a new problem"
+msgstr ""
+
+#: ../zilla.py:211
+msgid "Bug id"
+msgstr ""
+
+#: ../zilla.py:218
+msgid "GLPI id"
+msgstr ""
+
+#: ../zilla.py:226
+msgid "Status"
+msgstr ""
+
+#: ../zilla.py:236
+msgid "Description"
+msgstr ""
+
+#: ../zilla.py:293
+msgid "Searching for bugs matching <%s>"
+msgstr ""
+
