@@ -14,6 +14,7 @@ import urllib
 import urllib2
 import time
 import xml.etree.cElementTree as ET
+import traceback
 
 # this comes from python-bugz
 from bugz import bugzilla
@@ -45,6 +46,41 @@ class Crawler(Thread):
     def set_gui(self, gui):
         """Sets gui callback"""
         self.gui = gui
+
+    def get_bug(self, bug_id):
+        """Retreives a given bug"""
+        try:
+            bug_et = self.bugzilla.get(bug_id)
+            bug = bug_et.getroot()
+            fields = {"creation_ts": "",
+                "bug_id": "",
+                "short_desc": "",
+                "product": "",
+                "version": "",
+                "bug_status": "",
+                "resolution": "",
+                "reporter": "",
+                "assigned_to": ""
+                }
+            for item in fields:
+                val = bug.findtext(".//%s" % item)
+                fields[item] = val
+                print "%s: %s" % (item, val)
+
+            comments = []
+            for comment in bug.findall(".//long_desc"):
+                who = comment.findtext(".//who")
+                ts = comment.findtext(".//bug_when")
+                text = comment.findtext(".//thetext")
+                comments.append((who, ts, text))
+
+            fields["comments"] = comments
+            return fields
+        except:
+            print "Error fetching bug %s" % bug_id
+            traceback.print_exc()
+            return None
+
 
     def search(self, text):
         """Tells the crawler to do the search"""
@@ -78,14 +114,16 @@ class Crawler(Thread):
                     desc = bug['desc']
                     bugs.append((id, status, desc))
                     self.bugz[id] = bug
-                print bugs
-                print self.gui
+                    print bug
                 if self.gui:
                     self.gui.queue_bugs_update(bugs)
 
 
 class UI:
     (COLUMN_ID, COLUMN_GLPI, COLUMN_STATUS, COLUMN_DESCR) = range(4)
+    # some default definitions
+    PRODUCTS=["Mandriva Linux", "Rosa Desktop"]
+    COMPONENTS=["Core packages"]
     def __init__(self, crawler):
         """Initializes web UI for bugzilla"""
         self.crawler = crawler
@@ -184,6 +222,74 @@ class UI:
 
         return vbox
 
+    def build_value_pair(self, sizegroup, text, value_text=None, value_sizegroup=None, editable=True):
+        """Builds a value pair"""
+        hbox = gtk.HBox(spacing=10)
+        name = gtk.Label(text)
+        name.set_property("xalign", 0.0)
+        hbox.pack_start(name, False, False)
+        value = gtk.Entry()
+        if value_text:
+            value.set_text(value_text)
+        if not editable:
+            value.set_editable(False)
+        hbox.pack_start(value, False, False)
+        if sizegroup:
+            sizegroup.add_widget(name)
+        if value_sizegroup:
+            value_sizegroup.add_widget(value)
+        return hbox, value
+
+    def create_bug_view(self, bug_id):
+        """Creates a view for individual bug"""
+        bug = self.crawler.get_bug(bug_id)
+
+        dialog = gtk.Dialog(_("Reporting a bug"), self.window, 0,
+                (gtk.STOCK_OK, gtk.RESPONSE_OK,
+                gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
+                )
+        sizegroup1 = gtk.SizeGroup(gtk.SIZE_GROUP_HORIZONTAL)
+        sizegroup2 = gtk.SizeGroup(gtk.SIZE_GROUP_HORIZONTAL)
+        # building bug view id
+        field_pairs = {
+                "bug_id": {
+                    "text": ("Bugzilla id"),
+                    "value_widget": None,
+                    },
+                "creation_ts": {
+                    "text": _("Date reported"),
+                    "value_widget": None,
+                    },
+                "product": {
+                    "text": ("Product"),
+                    "value_widget": None,
+                    },
+                "version": {
+                    "text": ("Version"),
+                    "value_widget": None,
+                    },
+                "resolution": {
+                    "text": ("Resolution"),
+                    "value_widget": None,
+                    },
+                "reporter": {
+                    "text": ("Reporter"),
+                    "value_widget": None,
+                    },
+                "assigned_to": {
+                    "text": ("Assigned to"),
+                    "value_widget": None,
+                    },
+                }
+        for field in field_pairs:
+            hbox, value_widget = self.build_value_pair(sizegroup1, field_pairs[field]["text"], bug[field], value_sizegroup=sizegroup2, editable=False)
+            dialog.vbox.pack_start(hbox, False, False, 2)
+            field_pairs[field]["value_widget"] = value_widget
+
+        dialog.vbox.show_all()
+        ret = dialog.run()
+        dialog.destroy()
+
     def create_bugs_view(self):
         """Creates a view for list of bugs"""
 
@@ -247,9 +353,7 @@ class UI:
         """A bug was selected"""
         iter = model.get_iter(path)
         bug_id = model.get_value(iter, self.COLUMN_ID)
-        if bug_id not in self.bugz:
-            print "Error: no info on bug %s!" % bug_id
-        bug = self.bugs[bug_id]
+        self.create_bug_view(bug_id)
 
     def create_my_reports(self):
         vbox = gtk.VBox()
